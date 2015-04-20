@@ -134,7 +134,7 @@ class ApiRequestAsync<ResponseType> extends AsyncTask<Void, Long, Runnable>
     /**
      * Constructs a new ApiRequestAsync object and initializes its member variables.
      *
-     * @param operation to launch in an asynchronous manner
+     * @param request to launch in an asynchronous manner
      */
     public ApiRequestAsync(ApiRequest<ResponseType> request) {
         assert request != null;

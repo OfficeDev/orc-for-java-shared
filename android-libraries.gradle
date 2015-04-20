@@ -12,7 +12,7 @@ uploadArchives {
         ) {
             authentication(
                     userName: 'bintray user',
-                    password: 'bintray password'
+                    password: 'bintray key'
             )
         }
     }

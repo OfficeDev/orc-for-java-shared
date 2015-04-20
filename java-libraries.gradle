@@ -57,7 +57,7 @@ bintray {
     configurations = ['published'] //When uploading configuration files
     apiUrl = "https://api.bintray.com"
     user = 'bintray user'
-    key =  'bintray password'
+    key =  'bintray key'
     dryRun = false
 
     filesSpec {
