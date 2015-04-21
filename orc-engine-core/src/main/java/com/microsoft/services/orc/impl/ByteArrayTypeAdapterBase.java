@@ -13,13 +13,11 @@ public abstract class ByteArrayTypeAdapterBase implements com.google.gson.JsonSe
 
     @Override
     public byte[] deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-        //return Base64.decode(json.getAsString(), Base64.DEFAULT);
         return getBase64Encoder().decode(json.getAsString());
     }
 
     @Override
     public JsonElement serialize(byte[] src, Type typeOfSrc, JsonSerializationContext context) {
-        //return new JsonPrimitive(Base64.encodeToString(src, Base64.DEFAULT));
         return new JsonPrimitive(getBase64Encoder().encode(src));
     }
 

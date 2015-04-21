@@ -13,7 +13,7 @@ import com.microsoft.services.orc.interfaces.Request;
 
 import java.util.List;
 
-import static com.microsoft.services.orc.Helpers.addCustomParametersToODataRequest;
+import static com.microsoft.services.orc.Helpers.addCustomParametersToRequest;
 import static com.microsoft.services.orc.Helpers.transformToEntityListenableFuture;
 import static com.microsoft.services.orc.Helpers.transformToStringListenableFuture;
 
@@ -170,7 +170,7 @@ public class OrcCollectionFetcher<TEntity, TFetcher extends OrcEntityFetcher, TO
         } else {
             setSelectorUrl(request.getUrl(), urlComponent, selectedId);
         }
-        addCustomParametersToODataRequest(request, getParameters(), getHeaders());
+        addCustomParametersToRequest(request, getParameters(), getHeaders());
         return parent.oDataExecute(request);
     }
 

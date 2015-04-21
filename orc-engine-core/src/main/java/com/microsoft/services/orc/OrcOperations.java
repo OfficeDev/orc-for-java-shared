@@ -10,7 +10,7 @@ import com.microsoft.services.orc.interfaces.DependencyResolver;
 import com.microsoft.services.orc.interfaces.OrcResponse;
 import com.microsoft.services.orc.interfaces.Request;
 
-import static com.microsoft.services.orc.Helpers.addCustomParametersToODataRequest;
+import static com.microsoft.services.orc.Helpers.addCustomParametersToRequest;
 
 /**
  * The type OrcOperations.
@@ -33,7 +33,7 @@ public abstract class OrcOperations extends OrcExecutable {
     @Override
     protected ListenableFuture<OrcResponse> oDataExecute(Request request) {
         request.getUrl().prependPathComponent(urlComponent);
-        addCustomParametersToODataRequest(request, getParameters(), getHeaders());
+        addCustomParametersToRequest(request, getParameters(), getHeaders());
         return parent.oDataExecute(request);
     }
 

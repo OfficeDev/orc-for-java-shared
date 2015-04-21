@@ -11,7 +11,7 @@ import com.microsoft.services.orc.interfaces.OrcResponse;
 import com.microsoft.services.orc.interfaces.OrcURL;
 import com.microsoft.services.orc.interfaces.Request;
 
-import static com.microsoft.services.orc.Helpers.addCustomParametersToODataRequest;
+import static com.microsoft.services.orc.Helpers.addCustomParametersToRequest;
 import static com.microsoft.services.orc.Helpers.transformToEntityListenableFuture;
 import static com.microsoft.services.orc.Helpers.transformToStringListenableFuture;
 import static com.microsoft.services.orc.Helpers.transformToVoidListenableFuture;
@@ -62,7 +62,7 @@ public abstract class OrcEntityFetcher<TEntity, TOperations extends OrcOperation
 
         orcURL.prependPathComponent(urlComponent);
 
-        addCustomParametersToODataRequest(request, getParameters(), getHeaders());
+        addCustomParametersToRequest(request, getParameters(), getHeaders());
         return parent.oDataExecute(request);
     }
 

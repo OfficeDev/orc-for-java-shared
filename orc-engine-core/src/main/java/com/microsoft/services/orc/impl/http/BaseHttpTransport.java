@@ -13,7 +13,6 @@ import com.microsoft.services.orc.interfaces.HttpTransport;
 import com.microsoft.services.orc.interfaces.Request;
 import com.microsoft.services.orc.interfaces.Response;
 
-
 /**
  * The type Android http transport.
  */

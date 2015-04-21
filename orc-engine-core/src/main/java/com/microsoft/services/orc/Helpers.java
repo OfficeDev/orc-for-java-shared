@@ -13,6 +13,7 @@ import com.microsoft.services.orc.interfaces.Request;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -24,10 +25,10 @@ public class Helpers {
 
     private static final String ENCODE_EXCEPTIONS = "!$&'()*+,;=:@";
 
-    private static final List<String> reservedNames;
+    private static final HashSet<String> reservedNames;
 
     static {
-        reservedNames = new ArrayList<String>();
+        reservedNames = new HashSet<String>();
         reservedNames.add("abstract");
         reservedNames.add("assert");
         reservedNames.add("boolean");
@@ -80,7 +81,7 @@ public class Helpers {
         reservedNames.add("while");
     }
 
-    public static List<String> getReservedNames() {
+    public static HashSet<String> getReservedNames() {
         return reservedNames;
     }
 
@@ -91,7 +92,7 @@ public class Helpers {
      * @param parameters the parameters
      * @param headers    the custom headers
      */
-    public static void addCustomParametersToODataRequest(Request request, Map<String, Object> parameters, Map<String, String> headers) {
+    public static void addCustomParametersToRequest(Request request, Map<String, Object> parameters, Map<String, String> headers) {
         OrcURL url = request.getUrl();
         Set<String> parameterKeys = parameters.keySet();
         for (String name : parameterKeys) {

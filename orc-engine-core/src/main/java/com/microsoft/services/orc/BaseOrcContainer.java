@@ -128,13 +128,13 @@ public abstract class BaseOrcContainer extends OrcExecutable {
                             String responseData = new String(odataResponse.getPayload(), Constants.UTF8_NAME);
                             String message = "Response status: " + response.getStatus() + "\n" + "Response content: " + responseData;
                             logger.log(message, LogLevel.ERROR);
-                            result.setException(new ODataException(odataResponse, message));
+                            result.setException(new OrcException(odataResponse, message));
                             return;
                         }
                         result.set(odataResponse);
                     } catch (Throwable t) {
                         logger.log("Unexpected error: " + t.toString(), LogLevel.ERROR);
-                        result.setException(new ODataException(odataResponse, t));
+                        result.setException(new OrcException(odataResponse, t));
                     }
                 }
 
