@@ -27,6 +27,7 @@ allprojects {
     }
 
     apply plugin: 'idea'
-    group = 'com.microsoft.services'
+    group = 'com.microsoft.orc'
     version = '0.13.0'
 }
+
