@@ -31,8 +31,6 @@ import org.apache.http.message.BasicNameValuePair;
 
 import android.text.TextUtils;
 
-import com.microsoft.live.OAuth.GrantType;
-
 /**
  * AccessTokenRequest represents a request for an Access Token.
  * It subclasses the abstract class TokenRequest, which does most of the work.
@@ -48,7 +46,7 @@ class AccessTokenRequest extends TokenRequest {
     private final String code;
 
     /** REQUIRED.  Value MUST be set to "authorization_code". */
-    private final GrantType grantType;
+    private final OAuth.GrantType grantType;
 
     /**
      * REQUIRED, if the "redirect_uri" parameter was included in the
@@ -76,7 +74,7 @@ class AccessTokenRequest extends TokenRequest {
 
         this.redirectUri = redirectUri;
         this.code = code;
-        this.grantType = GrantType.AUTHORIZATION_CODE;
+        this.grantType = OAuth.GrantType.AUTHORIZATION_CODE;
     }
 
     /**

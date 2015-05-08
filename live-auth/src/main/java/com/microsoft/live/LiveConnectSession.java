@@ -22,6 +22,9 @@
 
 package com.microsoft.live;
 
+import com.microsoft.live.OAuth;
+import com.microsoft.live.OAuthSuccessfulResponse;
+
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.Arrays;
@@ -29,7 +32,6 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Locale;
 import java.util.Set;
 
 /**
@@ -259,7 +261,7 @@ public class LiveConnectSession {
      * @return true if it was able to refresh the refresh token.
      */
     boolean refresh() {
-        return this.creator.refresh();
+        return this.creator.tryRefresh(this.getScopes());
     }
 
     void setAccessToken(String accessToken) {

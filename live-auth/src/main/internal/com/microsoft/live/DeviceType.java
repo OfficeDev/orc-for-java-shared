@@ -23,41 +23,23 @@
 package com.microsoft.live;
 
 /**
- * Enum that specifies what to do during a naming conflict during an upload.
+ * The type of the device is used to determine the display query parameter for login.live.com.
+ * Phones have a display parameter of android_phone.
+ * Tablets have a display parameter of android_tablet.
  */
-public enum OverwriteOption {
-
-    /** Overwrite the existing file. */
-    Overwrite {
+enum DeviceType {
+    PHONE {
         @Override
-        protected String overwriteQueryParamValue() {
-            return "true";
+        public OAuth.DisplayType getDisplayParameter() {
+            return OAuth.DisplayType.ANDROID_PHONE;
         }
     },
-
-    /** Do Not Overwrite the existing file and cancel the upload. */
-    DoNotOverwrite {
+    TABLET {
         @Override
-        protected String overwriteQueryParamValue() {
-            return "false";
-        }
-    },
-
-    /** Rename the current file to avoid a name conflict. */
-    Rename {
-        @Override
-        protected String overwriteQueryParamValue() {
-            return "choosenewname";
+        public OAuth.DisplayType getDisplayParameter() {
+            return OAuth.DisplayType.ANDROID_TABLET;
         }
     };
 
-    /**
-     * Leaves any existing overwrite query parameter on appends this overwrite
-     * to the given UriBuilder.
-     */
-    void appendQueryParameterOnTo(UriBuilder uri) {
-        uri.appendQueryParameter(QueryParameters.OVERWRITE, this.overwriteQueryParamValue());
-    }
-
-    abstract protected String overwriteQueryParamValue();
+    abstract public OAuth.DisplayType getDisplayParameter();
 }

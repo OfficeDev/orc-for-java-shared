@@ -22,37 +22,45 @@
 
 package com.microsoft.live;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
+import com.microsoft.live.QueryParameters;
+import com.microsoft.live.UriBuilder;
 
 /**
- * HttpCopy represents an HTTP COPY operation.
- * HTTP COPY is not a standard HTTP method and this adds it
- * to the HTTP library.
+ * Enum that specifies what to do during a naming conflict during an upload.
  */
-class HttpCopy extends HttpEntityEnclosingRequestBase {
+public enum OverwriteOption {
 
-    public static final String METHOD_NAME = "COPY";
+    /** Overwrite the existing file. */
+    Overwrite {
+        @Override
+        protected String overwriteQueryParamValue() {
+            return "true";
+        }
+    },
+
+    /** Do Not Overwrite the existing file and cancel the upload. */
+    DoNotOverwrite {
+        @Override
+        protected String overwriteQueryParamValue() {
+            return "false";
+        }
+    },
+
+    /** Rename the current file to avoid a name conflict. */
+    Rename {
+        @Override
+        protected String overwriteQueryParamValue() {
+            return "choosenewname";
+        }
+    };
 
     /**
-     * Constructs a new HttpCopy with the given uri and initializes its member variables.
-     *
-     * @param uri of the request
+     * Leaves any existing overwrite query parameter on appends this overwrite
+     * to the given UriBuilder.
      */
-    public HttpCopy(String uri) {
-        try {
-            this.setURI(new URI(uri));
-        } catch (URISyntaxException e) {
-            final String message = String.format(ErrorMessages.INVALID_URI, "uri");
-            throw new IllegalArgumentException(message);
-        }
+    void appendQueryParameterOnTo(UriBuilder uri) {
+        uri.appendQueryParameter(QueryParameters.OVERWRITE, this.overwriteQueryParamValue());
     }
 
-    /** @return the string "COPY" */
-    @Override
-    public String getMethod() {
-        return METHOD_NAME;
-    }
+    abstract protected String overwriteQueryParamValue();
 }

@@ -154,7 +154,7 @@ class UriBuilder {
             
                 this.queryParameters.add(new QueryParameter(key));
             } else {
-                Log.w("com.microsoft.live.UriBuilder", "Invalid query parameter: " + pair);
+                Log.w("com.microsoft.live.auth.UriBuilder", "Invalid query parameter: " + pair);
             }
         }
         
