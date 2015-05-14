@@ -302,4 +302,23 @@ public class Helpers {
             }
         });
     }
+
+    /**
+     * Apply byte array listenable future.
+     *
+     * @param future the future
+     * @return the listenable future
+     */
+    public static ListenableFuture<byte[]> transformToByteArrayListenableFuture(ListenableFuture<OrcResponse> future) {
+
+        return Futures.transform(future, new AsyncFunction<OrcResponse, byte[]>() {
+            @Override
+            public ListenableFuture<byte[]> apply(OrcResponse response) throws Exception {
+                final SettableFuture<byte[]> result = SettableFuture.create();
+                result.set(response.getPayload());
+                return result;
+            }
+        });
+    }
+
 }
