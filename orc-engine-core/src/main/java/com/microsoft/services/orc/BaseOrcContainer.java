@@ -99,7 +99,7 @@ public abstract class BaseOrcContainer extends OrcExecutable {
                         readBytes = false;
                     }
 
-                    OrcResponse odataResponse = new OrcResponseImpl(response);
+                    OrcResponse orcResponse = new OrcResponseImpl(response);
 
                     try {
                         logger.log("OData response received", LogLevel.INFO);
@@ -109,7 +109,7 @@ public abstract class BaseOrcContainer extends OrcExecutable {
 
                         if (readBytes) {
                             logger.log("Reading response data...", LogLevel.VERBOSE);
-                            byte[] data = odataResponse.getPayload();
+                            byte[] data = orcResponse.getPayload();
                             logger.log(data.length + " bytes read from response", LogLevel.VERBOSE);
 
                             try {
@@ -125,16 +125,16 @@ public abstract class BaseOrcContainer extends OrcExecutable {
 
                         if (status < 200 || status > 299) {
                             logger.log("Invalid status code. Processing response content as String", LogLevel.VERBOSE);
-                            String responseData = new String(odataResponse.getPayload(), Constants.UTF8_NAME);
+                            String responseData = new String(orcResponse.getPayload(), Constants.UTF8_NAME);
                             String message = "Response status: " + response.getStatus() + "\n" + "Response content: " + responseData;
                             logger.log(message, LogLevel.ERROR);
-                            result.setException(new OrcException(odataResponse, message));
+                            result.setException(new OrcException(orcResponse, message));
                             return;
                         }
-                        result.set(odataResponse);
+                        result.set(orcResponse);
                     } catch (Throwable t) {
                         logger.log("Unexpected error: " + t.toString(), LogLevel.ERROR);
-                        result.setException(new OrcException(odataResponse, t));
+                        result.setException(new OrcException(orcResponse, t));
                     }
                 }
 
