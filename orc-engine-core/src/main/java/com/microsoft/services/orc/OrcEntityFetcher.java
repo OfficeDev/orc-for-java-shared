@@ -1,8 +1,10 @@
-/*******************************************************************************
+/**
+ * ****************************************************************************
  * Copyright (c) Microsoft Open Technologies, Inc.
  * All Rights Reserved
  * See License.txt in the project root for license information.
- ******************************************************************************/
+ * ****************************************************************************
+ */
 package com.microsoft.services.orc;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -10,6 +12,8 @@ import com.microsoft.services.orc.interfaces.HttpVerb;
 import com.microsoft.services.orc.interfaces.OrcResponse;
 import com.microsoft.services.orc.interfaces.OrcURL;
 import com.microsoft.services.orc.interfaces.Request;
+
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.microsoft.services.orc.Helpers.addCustomParametersToRequest;
 import static com.microsoft.services.orc.Helpers.transformToEntityListenableFuture;
@@ -22,7 +26,7 @@ import static com.microsoft.services.orc.Helpers.transformToVoidListenableFuture
  * @param <TEntity>     the type parameter
  * @param <TOperations> the type parameter
  */
-public abstract class OrcEntityFetcher<TEntity, TOperations extends OrcOperations>
+public abstract class OrcEntityFetcher<TEntity extends ODataBaseEntity, TOperations extends OrcOperations>
         extends OrcFetcher<TEntity>
         implements Readable<TEntity> {
     private TOperations operations;
@@ -74,7 +78,25 @@ public abstract class OrcEntityFetcher<TEntity, TOperations extends OrcOperation
      * @return the listenable future
      */
     public ListenableFuture<TEntity> update(TEntity updatedEntity) {
-        ListenableFuture<String> future = updateRaw(getResolver().getJsonSerializer().serialize(updatedEntity));
+        return update(updatedEntity, false);
+    }
+
+    /**
+     * Updates the given entity.
+     *
+     * @param updatedEntity the updated entity
+     * @param override      override
+     * @return the listenable future
+     */
+    public ListenableFuture<TEntity> update(TEntity updatedEntity, boolean override) {
+        Object updatedValues = updatedEntity.getUpdatedValues();
+        if (!override) {
+
+            if (updatedValues == null) {
+                updatedValues = updatedEntity;
+            }
+        }
+        ListenableFuture<String> future = updateRaw(getResolver().getJsonSerializer().serialize(updatedValues), override);
         return transformToEntityListenableFuture(future, this.clazz, getResolver());
     }
 
@@ -84,12 +106,18 @@ public abstract class OrcEntityFetcher<TEntity, TOperations extends OrcOperation
      * @param payload the updated entity
      * @return the listenable future
      */
-    public ListenableFuture<String> updateRaw(String payload) {
+    public ListenableFuture<String> updateRaw(String payload, boolean override) {
+        HttpVerb verb = HttpVerb.PATCH;
+
+        if (override) {
+            verb = HttpVerb.PUT;
+        }
+
         byte[] payloadBytes = payload.getBytes(Constants.UTF8);
 
         Request request = getResolver().createRequest();
         request.setContent(payloadBytes);
-        request.setVerb(HttpVerb.PATCH);
+        request.setVerb(verb);
 
         ListenableFuture<OrcResponse> future = oDataExecute(request);
 
