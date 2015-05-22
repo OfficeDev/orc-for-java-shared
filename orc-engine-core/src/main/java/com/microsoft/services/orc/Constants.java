@@ -107,6 +107,11 @@ public class Constants {
     public static final String PROPERTY_NAME_RESERVED_PREFIX = "$$__$$";
 
     /**
+     * The constant PROPERTY_NAME_RESERVED_PREFIX
+     */
+    public static final String PROPERTY_NAME_IGNORE_PREFIX = "$$$__$$$";
+
+    /**
      * The constant ODATA_ENTITY_BASE_CLASS_NAME
      */
     public static final String ODATA_ENTITY_BASE_CLASS_NAME = "ODataBaseEntity";

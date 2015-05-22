@@ -142,12 +142,16 @@ public abstract class GsonSerializerBase implements JsonSerializer {
         } else if (json.isJsonObject()) {
             JsonObject jsonObject = json.getAsJsonObject();
 
-
             Set<Map.Entry<String, JsonElement>> entries = new HashSet<Map.Entry<String, JsonElement>>(jsonObject.entrySet());
 
             for (Map.Entry<String, JsonElement> entry : entries) {
                 String propertyName = entry.getKey();
                 JsonElement subElement = entry.getValue();
+
+                if (propertyName.startsWith(Constants.PROPERTY_NAME_IGNORE_PREFIX)) {
+                    jsonObject.remove(propertyName);
+                    continue;
+                }
 
                 String newName = propertyName;
 

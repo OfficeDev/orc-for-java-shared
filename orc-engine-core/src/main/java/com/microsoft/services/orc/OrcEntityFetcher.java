@@ -29,6 +29,7 @@ import static com.microsoft.services.orc.Helpers.transformToVoidListenableFuture
 public abstract class OrcEntityFetcher<TEntity extends ODataBaseEntity, TOperations extends OrcOperations>
         extends OrcFetcher<TEntity>
         implements Readable<TEntity> {
+
     private TOperations operations;
     private String select;
     private String expand;
@@ -78,26 +79,23 @@ public abstract class OrcEntityFetcher<TEntity extends ODataBaseEntity, TOperati
      * @return the listenable future
      */
     public ListenableFuture<TEntity> update(TEntity updatedEntity) {
-        return update(updatedEntity, false);
+        ListenableFuture<String> future = update(updatedEntity, true);
+        return transformToEntityListenableFuture(future, this.clazz, getResolver());
     }
 
     /**
      * Updates the given entity.
      *
      * @param updatedEntity the updated entity
-     * @param override      override
+     * @param update      override
      * @return the listenable future
      */
-    public ListenableFuture<TEntity> update(TEntity updatedEntity, boolean override) {
+    public ListenableFuture<String> update(TEntity updatedEntity, boolean update) {
         Object updatedValues = updatedEntity.getUpdatedValues();
-        if (!override) {
-
-            if (updatedValues == null) {
-                updatedValues = updatedEntity;
-            }
+        if (!update) {
+            updatedValues = updatedEntity;
         }
-        ListenableFuture<String> future = updateRaw(getResolver().getJsonSerializer().serialize(updatedValues), override);
-        return transformToEntityListenableFuture(future, this.clazz, getResolver());
+        return updateRaw(getResolver().getJsonSerializer().serialize(updatedValues), update);
     }
 
     /**
@@ -106,11 +104,11 @@ public abstract class OrcEntityFetcher<TEntity extends ODataBaseEntity, TOperati
      * @param payload the updated entity
      * @return the listenable future
      */
-    public ListenableFuture<String> updateRaw(String payload, boolean override) {
-        HttpVerb verb = HttpVerb.PATCH;
+    public ListenableFuture<String> updateRaw(String payload, boolean update) {
+        HttpVerb verb = HttpVerb.PUT;
 
-        if (override) {
-            verb = HttpVerb.PUT;
+        if (update) {
+            verb = HttpVerb.PATCH;
         }
 
         byte[] payloadBytes = payload.getBytes(Constants.UTF8);

@@ -25,7 +25,7 @@ public class ODataBaseEntity {
 
     protected String $$__ODataType;
 
-    ConcurrentHashMap<String, Object> updatedValues = new ConcurrentHashMap<>();
+    ConcurrentHashMap<String, Object> $$$__$$$updatedValues = new ConcurrentHashMap<String, Object>();
 
     protected void setODataType(String value) {
         this.$$__ODataType = value;
@@ -33,10 +33,10 @@ public class ODataBaseEntity {
 
     public ConcurrentHashMap<String, Object> getUpdatedValues() {
 
-        return new ConcurrentHashMap<String, Object>(updatedValues);
+        return new ConcurrentHashMap<String, Object>($$$__$$$updatedValues);
     }
 
     public void valueChanged(String property, Object payload) {
-        updatedValues.put(property, payload);
+        $$$__$$$updatedValues.put(property, payload);
     }
 }

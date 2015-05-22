@@ -26,7 +26,7 @@ import static com.microsoft.services.orc.Helpers.transformToVoidListenableFuture
  * @param <TEntity>     the type parameter
  * @param <TOperations> the type parameter
  */
-public abstract class OrcMediaEntityFetcher<TEntity, TOperations extends OrcOperations>
+public abstract class OrcMediaEntityFetcher<TEntity extends ODataBaseEntity, TOperations extends OrcOperations>
         extends OrcEntityFetcher<TEntity, TOperations>
         implements Readable<TEntity> {
 
@@ -39,7 +39,8 @@ public abstract class OrcMediaEntityFetcher<TEntity, TOperations extends OrcOper
      * @param operationClazz the operation clazz
      */
 
-    public OrcMediaEntityFetcher(String urlComponent, OrcExecutable parent, Class<TEntity> clazz, Class<TOperations> operationClazz) {
+    public OrcMediaEntityFetcher(String urlComponent, OrcExecutable parent, Class<TEntity> clazz,
+                                 Class<TOperations> operationClazz) {
         super(urlComponent, parent, clazz, operationClazz);
     }
 
