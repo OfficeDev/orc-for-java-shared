@@ -24,7 +24,7 @@ public class Constants {
     /**
      * The constant SDK_VERSION.
      */
-    public static final String SDK_VERSION = "0.14.0";
+    public static final String SDK_VERSION = "0.15.0";
 
     /**
      * The constant USER_AGENT_HEADER.
@@ -34,7 +34,7 @@ public class Constants {
     /**
      * The constant TELEMETRY_HEADER.
      */
-    public static final String TELEMETRY_HEADER = "X-ClientService-ClientTag";
+    public static final String TELEMETRY_HEADER = "(ORC/0.15.0, platform=Android, arch=ARM)";
 
     /**
      * The constant CONTENT_TYPE_HEADER.
