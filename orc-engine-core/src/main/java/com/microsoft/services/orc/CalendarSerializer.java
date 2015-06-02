@@ -24,7 +24,14 @@ public class CalendarSerializer {
         // Parse the well-formatted date string
         String datePattern;
         if(s.contains(".")){
-            datePattern = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSS" + zsuffix;
+            //SimpleDateFormat only supports 3 milliseconds
+            String milliseconds = s.substring(s.indexOf(".") + 1, s.indexOf("+"));
+            if(milliseconds.length() >3) {
+                milliseconds = milliseconds.substring(0, 3);
+                s = s.substring(0, s.indexOf(".") + 1) + milliseconds + s.substring(s.indexOf("+"));
+            }
+
+            datePattern = "yyyy-MM-dd'T'HH:mm:ss.SSS" + zsuffix;
         } else {
             datePattern = "yyyy-MM-dd'T'HH:mm:ss" + zsuffix;
         }
@@ -34,7 +41,7 @@ public class CalendarSerializer {
 
         Date date = dateFormat.parse(s);
 
-        Calendar calendar = Calendar.getInstance();
+        Calendar calendar = java.util.Calendar.getInstance();
         calendar.setTime(date);
         return calendar;
     }
