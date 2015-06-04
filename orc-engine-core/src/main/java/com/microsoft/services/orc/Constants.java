@@ -34,7 +34,7 @@ public class Constants {
     /**
      * The constant TELEMETRY_HEADER.
      */
-    public static final String TELEMETRY_HEADER = "(ORC/0.14.1, arch=ARM)";
+    public static final String TELEMETRY_HEADER = "X-ClientService-ClientTag";
 
     /**
      * The constant CONTENT_TYPE_HEADER.
