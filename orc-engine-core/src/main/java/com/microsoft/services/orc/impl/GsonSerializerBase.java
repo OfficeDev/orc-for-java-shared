@@ -9,14 +9,19 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.microsoft.services.orc.Constants;
+import com.microsoft.services.orc.ODataBaseEntity;
 import com.microsoft.services.orc.interfaces.JsonSerializer;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -63,7 +68,195 @@ public abstract class GsonSerializerBase implements JsonSerializer {
             clazz = overridenClass;
         }
 
-        return serializer.fromJson(json, clazz);
+        E odataEntity = serializer.fromJson(json, clazz);
+
+        referenceParents(odataEntity, null, null);
+
+        return odataEntity;
+    }
+
+    private void referenceParents(Object objToAnalyze, ODataBaseEntity parent, String referenceProperty)  {
+        if (objToAnalyze == null) {
+            return;
+        }
+
+        Class objClass = objToAnalyze.getClass();
+
+        if (objToAnalyze instanceof List) {
+            List list = (List)objToAnalyze;
+
+            for (Object subObject : list) {
+                referenceParents(subObject, parent, referenceProperty);
+            }
+        } else if (objToAnalyze instanceof ODataBaseEntity) {
+            ODataBaseEntity entity = (ODataBaseEntity)objToAnalyze;
+            entity.setParent(parent, referenceProperty);
+
+            for (Field field : objClass.getFields()) {
+                field.setAccessible(true);
+
+                try {
+                    Object fieldValue = field.get(objClass);
+                    if (fieldValue instanceof List && !(fieldValue instanceof ParentReferencedList)) {
+                        List originalList = (List)fieldValue;
+                        field.set(parent, new ParentReferencedList(originalList, parent, field.getName()));
+                    }
+                    referenceParents(fieldValue, entity, field.getName());
+
+                } catch (IllegalAccessException e) {
+                }
+            }
+        }
+    }
+
+    private class ParentReferencedList<E> implements List<E> {
+
+        List<E> wrappedList;
+        ODataBaseEntity parent;
+        String referenceProperty;
+
+        public ParentReferencedList(List<E> wrappedlist, ODataBaseEntity parent, String referenceProperty) {
+            this.wrappedList = wrappedlist;
+            this.parent = parent;
+            this.referenceProperty = referenceProperty;
+        }
+
+        void notifyChange() {
+            parent.valueChanged(referenceProperty, this);
+        }
+
+        @Override
+        public int size() {
+            return wrappedList.size();
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return wrappedList.isEmpty();
+        }
+
+        @Override
+        public boolean contains(Object o) {
+            return wrappedList.contains(o);
+        }
+
+        @Override
+        public Iterator<E> iterator() {
+            return wrappedList.iterator();
+        }
+
+        @Override
+        public Object[] toArray() {
+            return wrappedList.toArray();
+        }
+
+        @Override
+        public <T> T[] toArray(T[] a) {
+            return wrappedList.toArray(a);
+        }
+
+        @Override
+        public boolean add(E e) {
+            boolean ret = wrappedList.add(e);
+            notifyChange();
+            return ret;
+        }
+
+        @Override
+        public boolean remove(Object o) {
+            boolean ret =  wrappedList.remove(o);
+            notifyChange();
+            return ret;
+        }
+
+        @Override
+        public boolean containsAll(Collection<?> c) {
+            return wrappedList.containsAll(c);
+        }
+
+        @Override
+        public boolean addAll(Collection<? extends E> c) {
+            boolean ret =  wrappedList.addAll(c);
+            notifyChange();
+            return ret;
+        }
+
+        @Override
+        public boolean addAll(int index, Collection<? extends E> c) {
+            boolean ret =  wrappedList.addAll(c);
+            notifyChange();
+            return ret;
+        }
+
+        @Override
+        public boolean removeAll(Collection<?> c) {
+            boolean ret =  wrappedList.removeAll(c);
+            notifyChange();
+            return ret;
+        }
+
+        @Override
+        public boolean retainAll(Collection<?> c) {
+            boolean ret = wrappedList.retainAll(c);
+            notifyChange();
+            return ret;
+        }
+
+        @Override
+        public void clear() {
+            wrappedList.clear();
+            notifyChange();
+        }
+
+        @Override
+        public E get(int index) {
+            return wrappedList.get(index);
+        }
+
+        @Override
+        public E set(int index, E element) {
+            E ret = wrappedList.set(index, element);
+            notifyChange();
+            return ret;
+        }
+
+        @Override
+        public void add(int index, E element) {
+            wrappedList.add(index, element);
+            notifyChange();
+        }
+
+        @Override
+        public E remove(int index) {
+            E ret =  wrappedList.remove(index);
+            notifyChange();
+            return ret;
+        }
+
+        @Override
+        public int indexOf(Object o) {
+            return wrappedList.indexOf(o);
+        }
+
+        @Override
+        public int lastIndexOf(Object o) {
+            return wrappedList.lastIndexOf(o);
+        }
+
+        @Override
+        public ListIterator<E> listIterator() {
+            return wrappedList.listIterator();
+        }
+
+        @Override
+        public ListIterator<E> listIterator(int index) {
+            return wrappedList.listIterator(index);
+        }
+
+        @Override
+        public List<E> subList(int fromIndex, int toIndex) {
+            return wrappedList.subList(fromIndex, toIndex);
+        }
     }
 
     protected Class getClassFromJson(JsonElement json, Package pkg) {
@@ -82,11 +275,10 @@ public abstract class GsonSerializerBase implements JsonSerializer {
 
                     String classFullName = pkg.getName() + "." + className;
                     Class<?> derivedClass = Class.forName(classFullName);
-                    Class<?> baseClass = Class.forName(pkg.getName() + "." + Constants.ODATA_ENTITY_BASE_CLASS_NAME);
 
-                    Object instance = derivedClass.newInstance();
+                    ODataBaseEntity instance = (ODataBaseEntity)derivedClass.newInstance();
 
-                    Field field = baseClass.getDeclaredField(Constants.ODATA_TYPE_PROPERTY_NAME);
+                    Field field = ODataBaseEntity.class.getDeclaredField(Constants.ODATA_TYPE_PROPERTY_NAME);
                     if (field != null) {
                         field.setAccessible(true);
                         String val = (String) field.get(instance);

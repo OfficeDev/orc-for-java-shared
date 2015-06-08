@@ -24,7 +24,7 @@ public class Constants {
     /**
      * The constant SDK_VERSION.
      */
-    public static final String SDK_VERSION = "0.15.0";
+    public static final String SDK_VERSION = "0.14.1";
 
     /**
      * The constant USER_AGENT_HEADER.
@@ -34,7 +34,7 @@ public class Constants {
     /**
      * The constant TELEMETRY_HEADER.
      */
-    public static final String TELEMETRY_HEADER = "(ORC/0.15.0, platform=Android, arch=ARM)";
+    public static final String TELEMETRY_HEADER = "(ORC/0.14.1, arch=ARM)";
 
     /**
      * The constant CONTENT_TYPE_HEADER.
@@ -110,9 +110,4 @@ public class Constants {
      * The constant PROPERTY_NAME_RESERVED_PREFIX
      */
     public static final String PROPERTY_NAME_IGNORE_PREFIX = "$$$__$$$";
-
-    /**
-     * The constant ODATA_ENTITY_BASE_CLASS_NAME
-     */
-    public static final String ODATA_ENTITY_BASE_CLASS_NAME = "ODataBaseEntity";
 }
