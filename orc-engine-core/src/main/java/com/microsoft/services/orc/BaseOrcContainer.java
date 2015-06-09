@@ -90,6 +90,7 @@ public abstract class BaseOrcContainer extends OrcExecutable {
             final ListenableFuture<Response> future = httpTransport.execute(request);
             logger.log("OData request executed", LogLevel.INFO);
 
+
             Futures.addCallback(future, new FutureCallback<Response>() {
 
                 @Override

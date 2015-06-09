@@ -12,7 +12,6 @@ import com.microsoft.services.orc.Constants;
 import com.microsoft.services.orc.ODataBaseEntity;
 import com.microsoft.services.orc.interfaces.JsonSerializer;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -82,6 +81,13 @@ public abstract class GsonSerializerBase implements JsonSerializer {
 
         Class objClass = objToAnalyze.getClass();
 
+        if (objToAnalyze instanceof ParentReferencedList) {
+            ParentReferencedList list = (ParentReferencedList)objToAnalyze;
+
+            for (Object subObject : list) {
+                referenceParents(subObject, parent, referenceProperty);
+            }
+        }
         if (objToAnalyze instanceof List) {
             List list = (List)objToAnalyze;
 
@@ -90,18 +96,23 @@ public abstract class GsonSerializerBase implements JsonSerializer {
             }
         } else if (objToAnalyze instanceof ODataBaseEntity) {
             ODataBaseEntity entity = (ODataBaseEntity)objToAnalyze;
-            entity.setParent(parent, referenceProperty);
+            if (parent != null) {
+                entity.setParent(parent, referenceProperty);
+            }
 
-            for (Field field : objClass.getFields()) {
+            for (Field field : getAllFields(objClass, ODataBaseEntity.class)) {
                 field.setAccessible(true);
 
                 try {
-                    Object fieldValue = field.get(objClass);
+                    Object fieldValue = field.get(objToAnalyze);
                     if (fieldValue instanceof List && !(fieldValue instanceof ParentReferencedList)) {
                         List originalList = (List)fieldValue;
-                        field.set(parent, new ParentReferencedList(originalList, parent, field.getName()));
+                        ParentReferencedList wrapperList = new ParentReferencedList(originalList, entity, field.getName());
+                        field.set(entity, wrapperList);
+                        referenceParents(wrapperList, wrapperList, null);
+                    } else {
+                        referenceParents(fieldValue, entity, field.getName());
                     }
-                    referenceParents(fieldValue, entity, field.getName());
 
                 } catch (IllegalAccessException e) {
                 }
@@ -109,7 +120,21 @@ public abstract class GsonSerializerBase implements JsonSerializer {
         }
     }
 
-    private class ParentReferencedList<E> implements List<E> {
+    private Iterable<? extends Field> getAllFields(Class clazz, Class topClass) {
+        List<Field> fields = new ArrayList<Field>();
+
+        while (clazz != topClass) {
+            for (Field f : clazz.getDeclaredFields()) {
+                fields.add(f);
+            }
+
+            clazz = clazz.getSuperclass();
+        }
+
+        return fields;
+    }
+
+    private class ParentReferencedList<E> extends ODataBaseEntity implements List<E> { // necesito que este y que odatabaseentity implementen notifypropertychanged, para que cuando encuentra la lista pase siempre esa lista como objeto para notificar en la recursion, en vez de el odatabaseentity
 
         List<E> wrappedList;
         ODataBaseEntity parent;
@@ -121,7 +146,11 @@ public abstract class GsonSerializerBase implements JsonSerializer {
             this.referenceProperty = referenceProperty;
         }
 
-        void notifyChange() {
+        public void valueChanged(String property, Object payload) {
+            valueChanged();
+        }
+
+        void valueChanged() {
             parent.valueChanged(referenceProperty, this);
         }
 
@@ -158,14 +187,14 @@ public abstract class GsonSerializerBase implements JsonSerializer {
         @Override
         public boolean add(E e) {
             boolean ret = wrappedList.add(e);
-            notifyChange();
+            valueChanged();
             return ret;
         }
 
         @Override
         public boolean remove(Object o) {
             boolean ret =  wrappedList.remove(o);
-            notifyChange();
+            valueChanged();
             return ret;
         }
 
@@ -177,35 +206,35 @@ public abstract class GsonSerializerBase implements JsonSerializer {
         @Override
         public boolean addAll(Collection<? extends E> c) {
             boolean ret =  wrappedList.addAll(c);
-            notifyChange();
+            valueChanged();
             return ret;
         }
 
         @Override
         public boolean addAll(int index, Collection<? extends E> c) {
             boolean ret =  wrappedList.addAll(c);
-            notifyChange();
+            valueChanged();
             return ret;
         }
 
         @Override
         public boolean removeAll(Collection<?> c) {
             boolean ret =  wrappedList.removeAll(c);
-            notifyChange();
+            valueChanged();
             return ret;
         }
 
         @Override
         public boolean retainAll(Collection<?> c) {
             boolean ret = wrappedList.retainAll(c);
-            notifyChange();
+            valueChanged();
             return ret;
         }
 
         @Override
         public void clear() {
             wrappedList.clear();
-            notifyChange();
+            valueChanged();
         }
 
         @Override
@@ -216,20 +245,20 @@ public abstract class GsonSerializerBase implements JsonSerializer {
         @Override
         public E set(int index, E element) {
             E ret = wrappedList.set(index, element);
-            notifyChange();
+            valueChanged();
             return ret;
         }
 
         @Override
         public void add(int index, E element) {
             wrappedList.add(index, element);
-            notifyChange();
+            valueChanged();
         }
 
         @Override
         public E remove(int index) {
             E ret =  wrappedList.remove(index);
-            notifyChange();
+            valueChanged();
             return ret;
         }
 
