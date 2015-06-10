@@ -24,7 +24,7 @@ public class Constants {
     /**
      * The constant SDK_VERSION.
      */
-    public static final String SDK_VERSION = "0.14.1";
+    public static final String SDK_VERSION = "0.14.2";
 
     /**
      * The constant USER_AGENT_HEADER.
